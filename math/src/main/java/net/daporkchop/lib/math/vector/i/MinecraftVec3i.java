@@ -1,15 +1,20 @@
 /*
- * Adapted from the Wizardry License
+ * Adapted from The MIT License (MIT)
  *
- * Copyright (c) 2018-2018 DaPorkchop_ and contributors
+ * Copyright (c) 2018-2020 DaPorkchop_
  *
- * Permission is hereby granted to any persons and/or organizations using this software to copy, modify, merge, publish, and distribute it. Said persons and/or organizations are not allowed to use the software or any derivatives of the work for commercial use or any other means to generate income, nor are they allowed to claim this software as their own.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
  *
- * The persons and/or organizations are also disallowed from sub-licensing and/or trademarking this software without explicit permission from DaPorkchop_.
+ * Any persons and/or organizations using this software must include the above copyright notice and this permission notice,
+ * provide sufficient credit to the original authors of the project (IE: DaPorkchop_), as well as provide a link to the original project.
  *
- * Any persons and/or organizations using this software must disclose their source code and have it publicly available, include this license, provide sufficient credit to the original authors of the project (IE: DaPorkchop_), as well as provide a link to the original project.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
 
@@ -26,7 +31,7 @@ package net.daporkchop.lib.math.vector.i;
  * @author DaPorkchop_
  */
 public class MinecraftVec3i {
-    private static final int NUM_X_BITS = 1 + Log2.log2(Round2.roundInt(30000000));
+    private static final int NUM_X_BITS = 26;
     private static final int NUM_Z_BITS = NUM_X_BITS;
     private static final int NUM_Y_BITS = 64 - NUM_X_BITS - NUM_Z_BITS;
     private static final int Y_SHIFT = NUM_Z_BITS;
@@ -38,7 +43,7 @@ public class MinecraftVec3i {
     /**
      * The actual data containing the X,Y,Z coordinates
      */
-    private volatile long backing;
+    private long backing;
 
     /**
      * Create an empty vector at:
@@ -170,94 +175,29 @@ public class MinecraftVec3i {
     }
 
     /**
-     * Check if this vector is equal to another one
-     *
-     * @param vec The vector to compare with
-     * @return Whether to not this vector stores the same position as the given one
-     */
-    public boolean equals(MinecraftVec3i vec) {
-        return vec != null && vec.backing == this.backing;
-    }
-
-    /**
      * Make a duplicate of this vector
      *
      * @return A new object with the same coordinates as this vector
      */
+    @Override
     public MinecraftVec3i clone() {
-        MinecraftVec3i minecraftVec3i = this.clone();
         return new MinecraftVec3i(this.backing);
     }
 
-    static class Log2 {
-        private static final int[] DE_BRUIJN = {0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9};
-
-        private Log2() {
-        }
-
-        private static int calculateDeBruijn(int value) {
-            value = IsPow2.checkInt(value) ? value : Round2.roundInt(value);
-            return DE_BRUIJN[(int) ((long) value * 125613361L >> 27) & 31];
-        }
-
-        public static int log2(int value) {
-            return calculateDeBruijn(value) - (IsPow2.checkInt(value) ? 0 : 1);
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MinecraftVec3i)  {
+            return this.backing == ((MinecraftVec3i) obj).backing;
+        } else if (obj instanceof IntVector3)   {
+            IntVector3 vec = (IntVector3) obj;
+            return this.getX() == vec.getX() && this.getY() == vec.getY() && this.getZ() == vec.getZ();
+        } else {
+            return false;
         }
     }
 
-    static class Round2 {
-        private Round2() {
-        }
-
-        public static long roundLong(long value) {
-            long l = value - 1;
-            l = l | l >> 1;
-            l = l | l >> 2;
-            l = l | l >> 4;
-            l = l | l >> 8;
-            l = l | l >> 16;
-            l = l | l >> 32;
-            return l + 1;
-        }
-
-        public static int roundInt(int value) {
-            int i = value - 1;
-            i = i | i >> 1;
-            i = i | i >> 2;
-            i = i | i >> 4;
-            i = i | i >> 8;
-            i = i | i >> 16;
-            return i + 1;
-        }
-
-        public static short roundShort(short value) {
-            short s = (short) (value - 1);
-            s = (short) (s | s >> 1);
-            s = (short) (s | s >> 2);
-            s = (short) (s | s >> 4);
-            s = (short) (s | s >> 8);
-            return (short) (s + 1);
-        }
-    }
-
-    static class IsPow2 {
-        private IsPow2() {
-        }
-
-        public static boolean checkLong(long value) {
-            return value != 0L && (value & value - 1L) == 0L;
-        }
-
-        public static boolean checkInt(int value) {
-            return value != 0 && (value & value - 1) == 0;
-        }
-
-        public static boolean checkShort(short value) {
-            return value != 0 && (value & value - 1) == 0;
-        }
-
-        public static boolean checkByte(byte value) {
-            return value != 0 && (value & value - 1) == 0;
-        }
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
